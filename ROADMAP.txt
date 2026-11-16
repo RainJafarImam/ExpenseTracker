@@ -1,0 +1,164 @@
+EXPENSE TRACKER - DETAILED PLAN OF ACTION
+==========================================
+
+GOAL
+Use the ExpenseTracker MCP server for my own daily expenses and reports (mail),
+then turn it into an Android edge app that other people install and use
+offline, with all data staying on their own phone.
+
+WORKING FOLDER (all changes happen here)
+D:\MCP\Project\ExpenseTracker-LocalMCP
+
+CURRENT STATE
+- FastMCP server + local SQLite database (expenses.db) + categories.json
+- Tools working: add_expense, list_expenses, summarize, delete_expense,
+  get_home_currency, set_home_currency
+- Every expense has a currency (ISO code). Default = home currency (INR).
+- Old entries were upgraded to INR automatically.
+
+KEY DESIGN RULES
+1. Rupee (INR) for India. Other countries use their own currency.
+2. Each user has ONE home currency. An expense uses it unless a different
+   currency is stated (example: "$5 coffee" while travelling).
+3. Totals are never mixed across currencies.
+4. Tool names, parameters and DB schema stay identical between the PC server
+   and the Android app, so nothing gets rewritten.
+5. An MCP server cannot be shipped to other people's phones as it is. The
+   phone app will contain the same tools and a local database inside it.
+
+
+------------------------------------------------------------
+PHASE 1 - FINALIZE THE PC VERSION
+------------------------------------------------------------
+Purpose: make the tracker reliable before building anything on top of it.
+
+Tasks
+[x] Server runs and logs expenses through Claude
+[x] Add currency field and home-currency setting
+[x] Add delete_expense
+[x] Delete test duplicates (entries #2 and #9)
+[x] Decide the final category and subcategory list (categories.json)
+[x] Use it daily for 3 to 5 days with real expenses
+[x] Write down every problem or missing thing noticed during daily use
+
+Done when: 3 to 5 days of real entries work without errors, and a list of
+needed changes exists.
+
+
+------------------------------------------------------------
+PHASE 2 - COMPLETE THE FEATURES
+------------------------------------------------------------
+Purpose: add what daily use showed is missing.
+
+Tasks
+[x] Update/edit expense tool (fix a wrong amount, category or note)
+[x] Monthly summary (total per category per month, per currency)
+[x] Optional: budget limit per category with a warning
+[x] CSV export for a date range (this is the "mail" feature)
+[x] Decide the mail approach: share/email a CSV report (export_csv writes the
+    file; reading bank/receipt emails is left for later)
+[x] Validate inputs: date format, positive amounts, valid currency code
+[x] Freeze tool names, parameters and the database schema (schema version 1)
+
+Done when: schema is frozen and every tool is tested from Claude.
+
+
+------------------------------------------------------------
+PHASE 3 - SAVE AND PUBLISH
+------------------------------------------------------------
+Purpose: protect the work and make it presentable.
+
+Tasks
+[x] Back up expenses.db before any big change (backup_database tool)
+[x] Fill in README.md (what it does, tools list, how to run, currency rules)
+[x] Keep only ONE project copy (this folder) and copy into the git repo
+    when publishing
+[x] Push to GitHub: RainJafarImam/MCP-Project (ExpenseTracker-LocalMCP)
+[x] Make sure expenses.db with personal data is NOT pushed (.gitignore)
+
+Done when: the repo is up to date and the README explains the project.
+
+
+------------------------------------------------------------
+PHASE 4 - DESIGN THE ANDROID APP
+------------------------------------------------------------
+Purpose: decide everything before writing app code.
+
+Tasks
+[x] Pick the framework: Flutter (see ANDROID_DESIGN.md)
+      Flutter = one codebase, easier to learn
+      Kotlin  = more native, better for on-device AI models
+[x] Reuse the same SQLite schema (expenses, settings and budgets tables)
+[x] Home currency set automatically from the phone region on first launch
+    (India = INR, USA = USD, Japan = JPY, and so on), editable in settings
+[x] Show amounts with the right symbol
+[x] Plan the screens: add expense, expense list, summary, settings, export
+[x] Plan data safety: backup, restore, CSV export
+[x] Plan updates: schema migrations so users keep data after an app update
+
+Done when: screens, data model and framework are decided on paper.
+
+
+------------------------------------------------------------
+PHASE 5 - BUILD THE ANDROID APP
+------------------------------------------------------------
+Purpose: working offline app with the same tools as the server.
+
+Tasks
+Code for all five tasks is written in android_app/. It has NOT been compiled
+or run yet. Follow android_app/README.md (flutter create, analyze, test, run),
+then change [~] to [x].
+[~] Local SQLite layer with the same tools:
+      add, list, summarize, delete, edit, home currency
+[~] Screens and the category list
+[~] CSV export and share/email of the report
+[~] Backup and restore (Android Auto Backup and manual file export/import)
+[~] Handle edge cases: wrong dates, large amounts, missing currency
+
+Done when: the app does everything the PC version does, with no internet.
+
+
+------------------------------------------------------------
+PHASE 6 - ON-DEVICE AI (OPTIONAL)
+------------------------------------------------------------
+Purpose: type "100 on bananas" and have it logged automatically.
+
+Tasks
+[ ] Choose a small offline model (for example Gemma or Qwen, run through
+    llama.cpp or MediaPipe)
+[ ] The model reads the sentence and calls the same tools
+[ ] Fallback: normal form entry if the model is unsure
+[ ] Check speed and battery use on a mid-range phone
+
+Done when: natural-language entry works offline on a real phone.
+
+
+------------------------------------------------------------
+PHASE 7 - TEST AND RELEASE
+------------------------------------------------------------
+Purpose: make it safe for other people to use.
+
+Tasks
+[ ] Test with a few friends on different phones
+[ ] Test other currencies and a different phone region
+[ ] Fix bugs and collect feedback
+[ ] Add a privacy note: all data stays on the phone
+[ ] Share an APK first
+[ ] Consider the Play Store if feedback is good
+
+
+------------------------------------------------------------
+RISKS AND NOTES
+------------------------------------------------------------
+- Lost phone without backup = lost data. Export and backup are important.
+- SQLite does not sync across devices. Add cloud sync only later, as optional.
+- Currency conversion is NOT included. A later step could add optional
+  conversion in reports.
+- Do not change the schema after Phase 2 without writing a migration.
+- Keep expenses.db with real data out of GitHub.
+
+NEXT ACTION
+1. Build and test the app: android_app\setup_android.bat (send errors to Claude).
+2. Publish as open source in a NEW public repo (see the steps in the chat /
+   README): git init, check git status, push, then attach the APK to a
+   GitHub Release.

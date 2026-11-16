@@ -1,0 +1,40 @@
+# Python-generated files
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+
+# Virtual environments
+.venv
+
+# Personal data - never publish
+expenses.db
+expenses.db-journal
+*.db
+backups/
+exports/
+
+# Android / Flutter build output and local files
+android_app/build/
+android_app/.dart_tool/
+android_app/.flutter-plugins*
+android_app/android/local.properties
+android_app/android/.gradle/
+android_app/android/app/debug/
+android_app/android/app/profile/
+android_app/android/app/release/
+*.apk
+*.aab
+
+# Signing keys - never publish
+*.jks
+*.keystore
+key.properties
+
+# Editor and OS files
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
