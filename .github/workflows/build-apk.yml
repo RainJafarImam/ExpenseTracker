@@ -56,6 +56,17 @@ jobs:
 
       - run: flutter pub get
 
+      # Flutter's own automatic NDK install can fail, so install the NDK that
+      # this Flutter version asks for up front, using the runner's sdkmanager.
+      - name: Install the Android NDK Flutter needs
+        run: |
+          NDK_VERSION=$(grep -rhoP 'ndkVersion: String = "\K[^"]+' "$FLUTTER_ROOT/packages/flutter_tools/gradle" 2>/dev/null | head -n1 || true)
+          NDK_VERSION=${NDK_VERSION:-28.2.13676358}
+          echo "Installing NDK $NDK_VERSION"
+          SDKMANAGER="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
+          yes | "$SDKMANAGER" --licenses > /dev/null || true
+          "$SDKMANAGER" "ndk;$NDK_VERSION"
+
       - run: flutter analyze --no-fatal-infos --no-fatal-warnings
 
       # Remove continue-on-error once the tests pass reliably in CI.
